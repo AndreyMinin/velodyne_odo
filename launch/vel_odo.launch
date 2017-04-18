@@ -1,0 +1,36 @@
+<launch>
+	<env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find velodyne_odo)/cfg/rosconsole.config"/>
+     <param name="use_sim_time" value="true"/>
+	 <node name="velodyne_odo" pkg="velodyne_odo" 
+	 	type="velodyne_odo_node" output="screen" >
+
+		<param name="Xmax" value="60.0"/>
+		<param name="Ymax" value="60.0"/>
+		<param name="Zmax" value="10.0"/>
+		<param name="Zmin" value="-4.0"/>
+		<param name="minRad" value="5.0"/>
+
+		<param name="sparse_first" value="0.2"/>
+		<param name="sparse_next" value="0.6"/>
+
+		<param name="cell_size" value="0.2"/>
+		<param name="sph_size" value="1.0"/>
+
+		<param name="registration_distance" value="7.0"/>
+		<param name="registration_time" value="200.0"/>
+		<param name="min_dis" value="0.001"/>
+		<param name="min_rot" value="0.0001"/>
+		<param name="max_dis" value="0.1"/>
+		<param name="max_rot" value="0.01"/>
+		<param name="max_iterations" value="100"/>
+		<param name="max_alignment_iterations" value="60"/>
+		<param name="transform_pointcloud" value="false"/>
+		<rosparam param="start_mask_angles"> [21.0, 31.0, 152.0, 269.5, 319.0]</rosparam>
+        <rosparam param="finish_mask_angles"> [27.0, 37.0, 162.0, 270.5, 327.0]</rosparam>
+		<param name="rays" value="1080"/>
+		
+		<param name="max_overcount" value="2"/>
+		<remap to="velodyne_points" from ="point_cloud" />
+	</node>
+</launch>
