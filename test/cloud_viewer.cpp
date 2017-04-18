@@ -18,14 +18,17 @@ void CloudViewer::simple_filter_pcloud(const VPointCloud::ConstPtr& input,
 {
     out->reserve(input->size());
     double max2 = max_rad*max_rad;
+    double min2 = min_rad*min_rad;
     for( int i = 0; i< input->size(); ++i)
     {
         const VPoint& p = input->points[i];
 
-        if ( p.x * p.x + p.y*p.y + p.z*p.z > max2)
-        {
-            continue;
-        }
+        double range2 = p.x * p.x + p.y*p.y ;
+        if ( range2 > max2 || range2 < min2)
+          continue;
+
+        if (p.z > max_z || p.z < min_z)
+          continue;
         out->push_back(p);
     }
 }
@@ -106,7 +109,7 @@ void CloudViewer::processCloud(const VPointCloud::ConstPtr &scan)
     if ( scan->header.frame_id != map_frame )
     {
         VPointCloud::Ptr fltr_scan = boost::make_shared<VPointCloud>();
-        filter_pcloud(scan, fltr_scan);
+        simple_filter_pcloud(scan, fltr_scan);
 
         pcl_ros::transformPointCloud( *fltr_scan, *map_scan, scan_transform );
 
@@ -165,6 +168,7 @@ CloudViewer::CloudViewer(ros::NodeHandle& nh):
   grid_size(nh.param("grid_size", grid_size)),
   rad(nh.param("rad", 1.0)),
   max_rad(nh.param("max_rad", 20.0)),
+  min_rad(nh.param("min_rad", 5.0)),
   min_z(nh.param("min_z", -2.0)),
   max_z(nh.param("max_z", 0.0)),
   laser_sub(nh.subscribe("/points", 10, &CloudViewer::processCloud, this,

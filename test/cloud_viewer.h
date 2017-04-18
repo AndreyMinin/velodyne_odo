@@ -28,6 +28,7 @@ protected:
   double grid_size;
   double rad;
   double max_rad;
+  double min_rad;
   double min_z;
   double max_z;
   ros::Subscriber laser_sub;
