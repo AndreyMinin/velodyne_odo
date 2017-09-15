@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   angles
   pcl_conversions
+  velodyne_pointcloud
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread)
