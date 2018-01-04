@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread)
-find_package(PCL REQUIRED COMPONENTS common filters)
+find_package(PCL REQUIRED COMPONENTS filters)
 find_package(VTK)
 
 if(VTK_FOUND)

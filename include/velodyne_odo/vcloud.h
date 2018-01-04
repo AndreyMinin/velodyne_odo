@@ -8,6 +8,7 @@
 #ifndef VCLOUD_H_
 #define VCLOUD_H_
 #include <velodyne_pointcloud/rawdata.h>
+#include <pcl/point_cloud.h>
 
 namespace registration {
 

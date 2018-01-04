@@ -11,6 +11,8 @@
 #include <cassert>
 #include "Map3D.h"
 #include "PCRegistration.h"
+#include <tf/tf.h>
+#include <tf/transform_datatypes.h>
 #include "tf/LinearMath/Transform.h"
 #include <boost/bind.hpp>
 #include <rosbag/bag.h>
@@ -380,7 +382,7 @@ bool is_cell_notzero(cell_t& cell)
 
 
 tf::Vector3 get_average(const std::list<tf::Vector3>& list)
-{ 
+{
   if ( list.empty() )
       return tf::Vector3(0,0,0);
 
@@ -472,9 +474,9 @@ void load_from_bag_sparse_full()
   //test if memory required is less then 1G
   float mem_req = 1e-9 * (float)(2*Xmax/cell_size*2*Ymax/cell_size*(Zmax-Zmin)/cell_size*sizeof(cell_t));
   ROS_INFO_STREAM("memory requirement "<<mem_req<< " Gbyte");
-  if (mem_req > 2 )
+  if (mem_req > loadParam(node,"max_mem_req", 3) )
   {
-    ROS_ERROR_STREAM("memory requirement above 2 Gig");
+    ROS_ERROR_STREAM("memory requirement above req Gig");
     exit(0);
   }
 
@@ -524,7 +526,7 @@ void load_from_bag_sparse_full()
     localTransform.setIdentity();
     //transform of first cloud
     QTransform firstTransform;
-    firstTransform= transf;
+    firstTransform = transf;
     //calculate position and orientation change on each step(velocities)
     //to predict position and orientation on next step
     tf::Vector3 linear_velocity(vx0, vy0, vz0);
@@ -602,7 +604,7 @@ void load_from_bag_sparse_full()
             boost::bind(&PCRegistration::clearPointCloudFast, &reg, first_cloud) );
 //            boost::bind(&PCRegistration::reset, &reg) );
         ROS_INFO_STREAM("map clear time = "<<time);
-        assert( reg.getMap().test_if(is_cell_notzero) == false );
+        //assert( reg.getMap().test_if(is_cell_notzero) == false );
       }
 
       time = 0;
@@ -673,9 +675,14 @@ void load_from_bag_sparse_full()
         //ros::Time cloud_time = pcl_conversions::fromPCL(cloud->header).stamp;
         dt = (cloud->header.stamp - last_cloud_header.stamp)*1.0e-6;
         cloud_dt = dt / (cloud->header.seq - last_cloud_header.seq);
+        if (cloud_dt < 0.01)
+        {
+          cloud_dt = 0.1;
+          dt = cloud_dt * (cloud->header.seq - last_cloud_header.seq);
+        }
         ROS_INFO_STREAM("new cloud "<<cloud->header.seq);
         ROS_INFO_STREAM("initial points quantity = "<<cloud->size());
-        ROS_INFO_STREAM(std::endl<<counter<<"cloud dt = "<<cloud_dt<<" dt = "<<dt);
+        ROS_INFO_STREAM(std::endl<<counter<<" cloud dt = "<<cloud_dt<<" dt = "<<dt);
 
         //cloud_dt = 0.1;
         int req = 0;
